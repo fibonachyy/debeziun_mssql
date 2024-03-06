@@ -6,23 +6,30 @@ const kafka = new Kafka({
 });
 
 const consumer = kafka.consumer({ groupId: "test-group" });
-const admin = kafka.admin();
 
 const run = async () => {
-  // Producing
-
-  // Consuming
+  // Connect the consumer
   await consumer.connect();
-  const topics = await admin.listTopics();
-  console.log(topics);
-  await consumer.subscribe({
-    topic: "fullfillment.your_database_server_name.db0.table_name",
-    fromBeginning: true,
-  });
 
+  // List of topics to subscribe to
+  const topics = [
+    "sqlserver.dbo.table_name",
+    // Add more topics as needed
+  ];
+
+  // Subscribe to each topic in the list
+  await Promise.all(
+    topics.map(async (topic) => {
+      await consumer.subscribe({ topic });
+      console.log(`Subscribed to topic: ${topic}`);
+    })
+  );
+
+  // Start consuming messages from all subscribed topics
   await consumer.run({
     eachMessage: async ({ topic, partition, message }) => {
       console.log({
+        topic,
         partition,
         offset: message.offset,
         value: message.value.toString(),

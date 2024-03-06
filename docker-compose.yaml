@@ -2,81 +2,64 @@ version: "3.8"
 
 services:
   zookeeper:
-    image: quay.io/debezium/zookeeper
+    image: wurstmeister/zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
     ports:
       - 2181:2181
       - 2888:2888
       - 3888:3888
     networks:
       - my-network
+
   kafka:
-    image: quay.io/debezium/kafka
-    ports:
-      - "9092:9092"
+    image: wurstmeister/kafka:latest
+    restart: always
     environment:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENERS: INTERNAL://kafka:9094,OUTSIDE://0.0.0.0:9092
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9094,OUTSIDE://localhost:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,OUTSIDE:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-      ZOOKEEPER_CONNECT: zookeeper:2181
-    depends_on:
-      - zookeeper
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,OUTSIDE://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+    ports:
+      - 9092:9092
     networks:
       - my-network
+
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2019-latest
     environment:
       SA_PASSWORD: "1234qwer?"
       ACCEPT_EULA: "Y"
+      MSSQL_AGENT_ENABLED: "True"
+      MSSQL_PID: "Developer"
     ports:
       - "1433:1433"
     networks:
       - my-network
     volumes:
       - ./debezium_data:/debezium/data
-  debezium:
-    image: debezium/connect:latest
-    restart: always
-    container_name: debezium
-    hostname: debezium
-    depends_on:
-      - kafka
+
+  kconnect:
+    image: debezium/connect:1.9
     ports:
-      - "8083:8083"
+      - 8083:8083
     environment:
-      BOOTSTRAP_SERVERS: kafka:9094
-      GROUP_ID: 1
-      CONFIG_STORAGE_TOPIC: connect_configs
-      STATUS_STORAGE_TOPIC: connect_statuses
-      OFFSET_STORAGE_TOPIC: connect_offsets
-      KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
-      VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
-      ENABLE_DEBEZIUM_SCRIPTING: "true"
-      DATABASE_HOSTNAME: sqlserver
-      DATABASE_PORT: "1433"
-      DATABASE_USER: "sa"
-      DATABASE_PASSWORD: "1234qwer?"
-      DATABASE_DBNAME: db_name
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "--silent",
-          "--fail",
-          "-X",
-          "GET",
-          "http://localhost:8083/connectors",
-        ]
-      start_period: 10s
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    volumes:
-      - ./plugins:/kafka/connect-plugins
+      CONFIG_STORAGE_TOPIC: my_connect_configs
+      OFFSET_STORAGE_TOPIC: my_connect_offsets
+      STATUS_STORAGE_TOPIC: my_connect_statuses
+      BOOTSTRAP_SERVERS: kafka:29092
+    links:
+      - kafka
+      - sqlserver
+
     networks:
       - my-network
+
+    volumes:
+      - ./plugins:/kafka/connect-plugins
+
 networks:
   my-network:
     driver: bridge
