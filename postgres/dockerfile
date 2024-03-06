@@ -1,0 +1,10 @@
+# Use the official PostgreSQL image as the base
+FROM postgres:latest
+
+# Set environment variables for PostgreSQL
+ENV POSTGRES_USER=postgres
+ENV POSTGRES_PASSWORD=postgres
+
+# Copy the custom configuration file into the container
+COPY ./custom-postgresql.conf /etc/postgresql/postgresql.conf
+

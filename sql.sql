@@ -1,3 +1,4 @@
+-- Active: 1709716202403@@127.0.0.1@1433@master
 SELECT * FROM sys.databases;
 
 CREATE DATABASE post_database;
@@ -11,11 +12,15 @@ FROM sys.dm_exec_sessions
 WHERE
     database_id = DB_ID('model');
 
-kill 62;
+kill 57;
 
 USE post_database;
 
 EXEC sys.sp_cdc_enable_db;
+
+CREATE TABLE table_name (
+    id int IDENTITY(1, 1) primary key, name varchar(255)
+);
 
 EXEC post_database.sys.sp_cdc_enable_table @source_schema = 'dbo',
 @source_name = 'table_name',

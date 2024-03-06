@@ -20,7 +20,7 @@ const run = async () => {
   // Subscribe to each topic in the list
   await Promise.all(
     topics.map(async (topic) => {
-      await consumer.subscribe({ topic });
+      await consumer.subscribe({ topic: /./ });
       console.log(`Subscribed to topic: ${topic}`);
     })
   );

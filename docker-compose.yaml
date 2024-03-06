@@ -12,6 +12,7 @@ services:
       - 3888:3888
     networks:
       - my-network
+    restart: always
 
   kafka:
     image: wurstmeister/kafka:latest
@@ -40,6 +41,7 @@ services:
       - my-network
     volumes:
       - ./debezium_data:/debezium/data
+    restart: always
 
   kconnect:
     image: debezium/connect:1.9
@@ -53,12 +55,25 @@ services:
     links:
       - kafka
       - sqlserver
+      - postgres
 
     networks:
       - my-network
-
+    restart: always
     volumes:
       - ./plugins:/kafka/connect-plugins
+  postgres:
+    build: ./postgres
+    ports:
+      - 5454:5432
+    links:
+      - kafka
+    networks:
+      - my-network
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
 
 networks:
   my-network:
