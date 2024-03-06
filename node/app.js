@@ -1,23 +1,34 @@
-const { kafka } = require("./client");
+const { Kafka } = require("kafkajs");
 
-async function init() {
-  const admin = kafka.admin();
-  console.log("Admin connecting...");
-  admin.connect();
-  console.log("Admin Connection Success...");
+const kafka = new Kafka({
+  brokers: ["localhost:9092"], // Use port 9092 for Kafka
+  clientId: "example-consumer",
+});
 
-  await admin.createTopics({
-    topics: [
-      {
-        topic: "fullfillment.db0.user",
-        numPartitions: 2,
-      },
-    ],
+const consumer = kafka.consumer({ groupId: "test-group" });
+const admin = kafka.admin();
+
+const run = async () => {
+  // Producing
+
+  // Consuming
+  await consumer.connect();
+  const topics = await admin.listTopics();
+  console.log(topics);
+  await consumer.subscribe({
+    topic: "fullfillment.your_database_server_name.db0.table_name",
+    fromBeginning: true,
   });
-  console.log("Topic Created Success [rider-updates]");
 
-  console.log("Disconnecting Admin..");
-  await admin.disconnect();
-}
+  await consumer.run({
+    eachMessage: async ({ topic, partition, message }) => {
+      console.log({
+        partition,
+        offset: message.offset,
+        value: message.value.toString(),
+      });
+    },
+  });
+};
 
-init();
+run().catch(console.error);

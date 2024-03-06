@@ -1,17 +1,16 @@
 {
-  "name": "sika-connector",
+  "name": "debezium-connector-sqlserver",
   "config": {
     "connector.class": "io.debezium.connector.sqlserver.SqlServerConnector",
-    "database.hostname": "127.0.0.1",
+    "tasks.max": "1",
+    "database.hostname": "sqlserver",
     "database.port": "1433",
     "database.user": "sa",
     "database.password": "1234qwer?",
-    "database.names": "post_database",
+    "database.names": "db_name",
     "topic.prefix": "fullfillment",
-    "table.include.list": "dbo.user",
-    "schema.history.internal.kafka.bootstrap.servers": "kafka:9092",
-    "schema.history.internal.kafka.topic": "schemahistory.fullfillment",
-    "database.ssl.truststore": "path/to/trust-store",
-    "database.ssl.truststore.password": "password-for-trust-store"
+    "table.include.list": "db0.table_name",
+    "database.history.kafka.bootstrap.servers": "kafka:9094",
+    "database.encrypt": "false"
   }
 }
