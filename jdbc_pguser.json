@@ -1,0 +1,16 @@
+{
+  "name": "jdbc-connector-table_name",
+  "config": {
+    "connector.class": "io.debezium.connector.jdbc.jdbcConnector",
+    "tasks.max": "1",
+    "connection.url": "jdbc:postgresql:5454//postgres/db",
+    "connection.username": "postgres",
+    "connection.password": "postgres",
+    "insert.mode": "upsert",
+    "delete.enabled": "true",
+    "primary.key.mode": "record_key",
+    "schema.evolution": "basic",
+    "database.time_zone": "UTC",
+    "topics": "sqlserver.dbo.table_name"
+  }
+}
