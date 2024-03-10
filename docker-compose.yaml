@@ -15,7 +15,7 @@ services:
     restart: always
 
   kafka:
-    image: wurstmeister/kafka:latest
+    image: bitnami/kafka:3.6.1
     restart: always
     environment:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -23,10 +23,18 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,OUTSIDE://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,OUTSIDE:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
     ports:
       - 9092:9092
     networks:
       - my-network
+      
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2019-latest
@@ -40,11 +48,11 @@ services:
     networks:
       - my-network
     volumes:
-      - ./debezium_data:/debezium/data
+      - sqlserver_data:/var/opt/mssql
     restart: always
 
   kconnect:
-    image: debezium/connect:1.9
+    image: debezium/connect:2.5.2.Final
     ports:
       - 8083:8083
     environment:
@@ -56,12 +64,12 @@ services:
       - kafka
       - sqlserver
       - postgres
-
     networks:
       - my-network
     restart: always
     volumes:
-      - ./plugins:/kafka/connect-plugins
+      - ./plugins:/kafka/connect
+      - ./debezium_data:/debezium/data
   postgres:
     build: ./postgres
     ports:
@@ -78,3 +86,6 @@ services:
 networks:
   my-network:
     driver: bridge
+
+volumes:
+  sqlserver_data:

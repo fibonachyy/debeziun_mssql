@@ -1,19 +1,16 @@
 {
   "name": "debezium-connector-sqlserver",
   "config": {
-    "debezium.source.database.history": "io.debezium.relational.history.KafkaDatabaseHistory",
     "connector.class": "io.debezium.connector.sqlserver.SqlServerConnector",
-    "tasks.max": "1",
-    "database.server.name": "sqlserver",
     "database.hostname": "sqlserver",
     "database.port": "1433",
     "database.user": "sa",
     "database.password": "1234qwer?",
-    "database.dbname": "post_database",
-
+    "database.names": "post_database",
     "topic.prefix": "fullfillment",
     "table.include.list": "dbo.table_name",
-    "database.history.kafka.bootstrap.servers": "kafka:29092",
-    "database.history.kafka.topic": "schema-changes.inventory"
+    "schema.history.internal.kafka.bootstrap.servers": "kafka:29092",
+    "schema.history.internal.kafka.topic": "schemahistory.fullfillment",
+    "database.encrypt": "false"
   }
 }

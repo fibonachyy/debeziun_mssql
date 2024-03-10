@@ -1,4 +1,4 @@
--- Active: 1709716202403@@127.0.0.1@1433@master
+-- Active: 1709979658686@@127.0.0.1@1433
 SELECT * FROM sys.databases;
 
 CREATE DATABASE post_database;
@@ -12,7 +12,7 @@ FROM sys.dm_exec_sessions
 WHERE
     database_id = DB_ID('model');
 
-kill 57;
+kill 62;
 
 USE post_database;
 
