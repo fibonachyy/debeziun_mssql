@@ -21,7 +21,9 @@ const run = async () => {
   // Subscribe to each topic in the list
   await Promise.all(
     topics.map(async (topic) => {
-      await consumer.subscribe({ topic: "sqlserver.dbo.table_name" });
+      await consumer.subscribe({
+        topic: "fullfillment.post_database.dbo.table_name",
+      });
       console.log(`Subscribed to topic: ${topic}`);
     })
   );
