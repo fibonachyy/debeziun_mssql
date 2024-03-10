@@ -1,9 +1,9 @@
 {
-  "name": "jdbc-connector-table_name",
+  "name": "jdbc-connector",
   "config": {
-    "connector.class": "io.debezium.connector.postgres.JdbcSinkConnector",
+    "connector.class": "io.debezium.connector.jdbc.JdbcSinkConnector",
     "tasks.max": "1",
-    "connection.url": "jdbc:postgresql://localhost:5454/db",
+    "connection.url": "jdbc:postgresql://postgres:5432/post_database",
     "connection.username": "postgres",
     "connection.password": "postgres",
     "insert.mode": "upsert",
@@ -11,6 +11,12 @@
     "primary.key.mode": "record_key",
     "schema.evolution": "basic",
     "database.time_zone": "UTC",
-    "topics": "sqlserver.dbo.table_name"
+    "topics": "fullfillment.post_database.dbo.table_name",
+    "transforms": "unwrap",
+    "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+    "auto.create": "true",
+    "javax.persistence.jdbc.driver": "org.postgresql.Driver",
+    "javax.persistence.jdbc.url": "jdbc:postgresql://postgres:5432/post_database?user=postgres&password=postgres",
+    "hibernate.dialect.Dialect": "org.hibernate.dialect.PostgreSQL95Dialect"
   }
 }
